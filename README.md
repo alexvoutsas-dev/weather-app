@@ -22,6 +22,7 @@ A modern weather application built using **HTML, CSS, JavaScript**, and the **Op
 2. Press **Search**
 3. View live weather info and 5-day forecast
 
+https://alexvoutsas-dev.github.io/weather-app/
 ---
 
 Built by **Alex Voutsas**, as part of learning Frontend Development.
