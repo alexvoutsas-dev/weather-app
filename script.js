@@ -1,4 +1,4 @@
-const API_KEY = "93cb6f32e21f8cfbd023aac1138fd0bb"; // βάλε εδώ το δικό σου
+const API_KEY = "93cb6f32e21f8cfbd023aac1138fd0bb"; // άσε το δικό σου εδώ
 
 const cityInput = document.getElementById("cityInput");
 const searchBtn = document.getElementById("searchBtn");
@@ -18,10 +18,37 @@ const themeToggleBtn = document.getElementById("themeToggle");
 
 console.log("Weather app JS loaded");
 
+// Φόρτωση: τελευταίας πόλης ή geolocation
+window.addEventListener("load", () => {
+    const savedTheme = localStorage.getItem("weatherTheme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark");
+        themeToggleBtn.textContent = "Light mode";
+    }
+
+    const lastCity = localStorage.getItem("lastCity");
+    if (lastCity) {
+        cityInput.value = lastCity;
+        getWeather(lastCity);
+    } else if ("geolocation" in navigator) {
+        showLoading();
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                getWeatherByCoords(latitude, longitude);
+            },
+            () => {
+                hideLoading();
+                showError("Δεν μπόρεσα να εντοπίσω την τοποθεσία. Πληκτρολόγησε μια πόλη.");
+            }
+        );
+    }
+});
+
 searchBtn.addEventListener("click", () => {
     const city = cityInput.value.trim();
     if (city === "") {
-        showError("Please type a city name.");
+        showError("Γράψε μια πόλη.");
         return;
     }
     getWeather(city);
@@ -35,9 +62,9 @@ cityInput.addEventListener("keydown", (e) => {
 
 themeToggleBtn.addEventListener("click", () => {
     document.body.classList.toggle("dark");
-    themeToggleBtn.textContent = document.body.classList.contains("dark")
-        ? "Light mode"
-        : "Dark mode";
+    const isDark = document.body.classList.contains("dark");
+    themeToggleBtn.textContent = isDark ? "Light mode" : "Dark mode";
+    localStorage.setItem("weatherTheme", isDark ? "dark" : "light");
 });
 
 function showError(message) {
@@ -73,30 +100,62 @@ async function getWeather(city) {
 
         if (!response.ok) {
             if (response.status === 404) {
-                showError("City not found. Try another name.");
+                showError("Δεν βρέθηκε αυτή η πόλη. Δοκίμασε άλλη.");
             } else if (response.status === 401) {
-                showError("Invalid API key or not activated yet.");
+                showError("Πρόβλημα με το API key (401).");
             } else {
-                showError("Error fetching weather data.");
+                showError("Σφάλμα κατά τη λήψη δεδομένων (" + response.status + ").");
             }
             hideLoading();
             return;
         }
 
         const data = await response.json();
+        localStorage.setItem("lastCity", data.name);
         updateUI(data);
 
-        // Μετά τον τωρινό καιρό, φέρνουμε και forecast με lat/lon
+        // forecast με lat/lon
         getForecast(data.coord.lat, data.coord.lon);
     } catch (err) {
-        showError("Network error. Check your connection.");
+        showError("Πρόβλημα δικτύου. Έλεγξε τη σύνδεση.");
+        console.error(err);
+        hideLoading();
+    }
+}
+
+async function getWeatherByCoords(lat, lon) {
+    clearError();
+
+    try {
+        const url =
+            "https://api.openweathermap.org/data/2.5/weather?lat=" +
+            lat +
+            "&lon=" +
+            lon +
+            "&units=metric&lang=el&appid=" +
+            API_KEY;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            showError("Σφάλμα κατά τη λήψη δεδομένων τοποθεσίας.");
+            hideLoading();
+            return;
+        }
+
+        const data = await response.json();
+        localStorage.setItem("lastCity", data.name);
+        updateUI(data);
+
+        getForecast(data.coord.lat, data.coord.lon);
+    } catch (err) {
+        showError("Πρόβλημα δικτύου (τοποθεσία).");
         console.error(err);
         hideLoading();
     }
 }
 
 function formatTimeFromUnix(unixTime, timezoneOffset) {
-    // unixTime σε δευτερόλεπτα, timezoneOffset σε δευτερόλεπτα
     const local = (unixTime + timezoneOffset) * 1000;
     const date = new Date(local);
     const hours = String(date.getUTCHours()).padStart(2, "0");
@@ -157,25 +216,23 @@ async function getForecast(lat, lon) {
 }
 
 function updateForecastUI(data) {
-    // data.list περιέχει ανά 3 ώρες. Θέλουμε ~1 entry ανά μέρα
     const byDate = {};
 
     data.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0]; // "YYYY-MM-DD"
-        const hour = item.dt_txt.split(" ")[1].split(":")[0]; // "00", "03", ...
-        // προτιμάμε κοντά στο μεσημέρι (12:00) ή αν όχι, κρατάμε ένα
+        const hour = item.dt_txt.split(" ")[1].split(":")[0];
         if (!byDate[date] || hour === "12") {
             byDate[date] = item;
         }
     });
 
-    const entries = Object.entries(byDate).slice(0, 5); // 5 μέρες
+    const entries = Object.entries(byDate).slice(0, 5);
 
     forecastItemsEl.innerHTML = "";
 
     entries.forEach(([date, item]) => {
         const d = new Date(date);
-        const dayName = d.toLocaleDateString("en-GB", { weekday: "short" });
+        const dayName = d.toLocaleDateString("el-GR", { weekday: "short" });
 
         const temp = Math.round(item.main.temp);
         const iconCode = item.weather[0].icon;

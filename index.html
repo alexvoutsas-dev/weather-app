@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
     <meta charset="UTF-8">
     <title>Weather App</title>
@@ -14,18 +14,19 @@
             <h1>Weather App</h1>
             <button id="themeToggle" class="theme-toggle">Dark mode</button>
         </div>
-        <p class="subtitle">Γράψε μια πόλη και δες τον καιρό</p>
+        <p class="subtitle">Γράψε μια πόλη ή άφησέ με να βρω την τοποθεσία σου</p>
 
         <div class="card">
             <div class="input-row">
                 <input type="text" id="cityInput" placeholder="Πόλη (π.χ. Thessaloniki)">
-                <button id="searchBtn">Search</button>
+                <button id="searchBtn">Αναζήτηση</button>
             </div>
 
             <p id="error" class="error"></p>
 
             <div id="loading" class="loading hidden">
-                Loading...
+                <div class="spinner"></div>
+                <span>Φόρτωση δεδομένων...</span>
             </div>
 
             <div id="result" class="result hidden">
@@ -44,7 +45,7 @@
             </div>
 
             <div id="forecast" class="forecast hidden">
-                <h3>5-day forecast</h3>
+                <h3>Πρόγνωση 5 ημερών</h3>
                 <div id="forecastItems" class="forecast-items"></div>
             </div>
         </div>
@@ -52,5 +53,4 @@
 
 </body>
 </html>
-
 

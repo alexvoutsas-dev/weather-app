@@ -13,6 +13,7 @@ body {
     justify-content: center;
     color: #111827;
     transition: background 0.3s ease, color 0.3s ease;
+    padding: 16px;
 }
 
 body.dark {
@@ -23,6 +24,8 @@ body.dark {
 .app-container {
     text-align: center;
     color: inherit;
+    width: 100%;
+    max-width: 480px;
 }
 
 .top-row {
@@ -33,7 +36,7 @@ body.dark {
 }
 
 h1 {
-    font-size: 32px;
+    font-size: 28px;
     margin-bottom: 6px;
 }
 
@@ -48,8 +51,6 @@ h1 {
     padding: 25px 20px 20px;
     border-radius: 16px;
     box-shadow: 0 15px 35px rgba(15, 23, 42, 0.5);
-    min-width: 320px;
-    max-width: 420px;
     margin: 0 auto;
     transition: background 0.3s ease, color 0.3s ease;
 }
@@ -115,6 +116,10 @@ button:active {
 }
 
 .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     font-size: 14px;
     color: #334155;
     margin-bottom: 8px;
@@ -122,6 +127,21 @@ button:active {
 
 body.dark .loading {
     color: #e5e7eb;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 3px solid rgba(148, 163, 184, 0.4);
+    border-top-color: #2563eb;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .result {
@@ -142,6 +162,7 @@ body.dark .result {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
+    gap: 12px;
 }
 
 .result h2 {
@@ -161,8 +182,8 @@ body.dark .result {
 }
 
 #icon {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
 }
 
 .forecast {
@@ -179,6 +200,7 @@ body.dark .result {
     display: flex;
     gap: 8px;
     overflow-x: auto;
+    padding-bottom: 4px;
 }
 
 .forecast-card {
@@ -201,5 +223,25 @@ body.dark .forecast-card {
 
 .hidden {
     display: none;
+}
+
+/* Responsive μικρές οθόνες */
+@media (max-width: 400px) {
+    h1 {
+        font-size: 22px;
+    }
+
+    .card {
+        padding: 18px 14px;
+    }
+
+    .result-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #icon {
+        align-self: flex-end;
+    }
 }
 
